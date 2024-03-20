@@ -5,7 +5,7 @@
  * @format
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -26,13 +26,29 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 import Header from './src/Components/Header/Header';
 import Footer from './src/Components/Footer/Footer';
+import AddItem from './src/Components/AddItem/AddItem';
+
+export type ShoppingListItem = {
+  item: string;
+  quantity: string;
+  id: string;
+}
+
+const testShoppingList: ShoppingListItem[] = [
+  {item: "Bananas", quantity: "2", id: "102"},
+  {item: "Apples", quantity: "5", id: "103"}
+];
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
 
+  const [shoppingList, setShoppinglist] = useState<ShoppingListItem[]>(testShoppingList);
+
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  console.log(`ShoppingList ${JSON.stringify(shoppingList)}`)
 
   return (
     <SafeAreaView style={[styles.mainContainer, backgroundStyle]}>
@@ -45,7 +61,12 @@ function App(): React.JSX.Element {
       </View>
 
       <View style={styles.addItemContainer}>
-        <Text>Add Item</Text>
+        <AddItem
+          shoppingList={shoppingList}
+          setShoppingList={setShoppinglist}
+          mainStyles={styles.addItemComponent}>
+
+        </AddItem>
       </View>
 
       <View style={styles.listItemsContainer}>
@@ -90,6 +111,9 @@ const styles = StyleSheet.create({
   },
   footerComponent: {
     backgroundColor: 'lightcoral'
+  },
+  addItemComponent: {
+    //backgroundColor: 'lightcoral'
   },
 });
 
