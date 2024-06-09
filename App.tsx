@@ -1,119 +1,150 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
+ * Shopping list App
  */
 
-import React, { useState } from 'react';
-import type {PropsWithChildren} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
-  Text,
-  useColorScheme,
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  //Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Header from './src/Components/Header/Header';
 import Footer from './src/Components/Footer/Footer';
 import AddItem from './src/Components/AddItem/AddItem';
+import ShoppingList from './src/Components/ShoppingList/ShoppingList';
+import { saveShoppingList } from './src/Utils/ShoppingListUtils';
+import { Button, Dialog, PaperProvider, Portal, Text } from 'react-native-paper';
 
 export type ShoppingListItem = {
   item: string;
   quantity: string;
-  id: string;
+  id: any;
 }
 
+// test data
 const testShoppingList: ShoppingListItem[] = [
   {item: "Bananas", quantity: "2", id: "102"},
   {item: "Apples", quantity: "5", id: "103"}
 ];
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
   const [shoppingList, setShoppinglist] = useState<ShoppingListItem[]>(testShoppingList);
+  const [infoVisible, setInfoVisible] = useState(false);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  useEffect(() => {
+    getShoppingList();
+  }, []);
 
-  console.log(`ShoppingList ${JSON.stringify(shoppingList)}`)
+  // clear shopping list
+  const clearShoppingList = () => {
+    setShoppinglist([]);
+    saveShoppingList([]);
+    console.log("Shopping list cleared");
+  }
+
+  // delete item from shopping list
+  const deleteShoppingListItem = (id: string) => {
+    const updatedList = shoppingList.filter(item => item.id !== id);
+    setShoppinglist(updatedList);
+    saveShoppingList(updatedList);
+  }
+
+  // get shopping list
+  const getShoppingList = async () => {
+    try {
+      const shoppingListJson = await AsyncStorage.getItem('shoppingList');
+      if(shoppingListJson !== null) {
+        const shoppingList = JSON.parse(shoppingListJson);
+        console.log('Shopping list retrieved: ', shoppingList);
+        setShoppinglist(shoppingList);
+      } else {
+        console.log('No shopping list found');
+      }
+    } catch (error) {
+      console.error('Error retrieving shopping list', error)
+    }
+  }
+
+  const openDialog = () => setInfoVisible(true);
+  const hideDialog = () => setInfoVisible(false);
+
+  // console.log(`ShoppingList ${JSON.stringify(shoppingList)}`)
 
   return (
-    <SafeAreaView style={[styles.mainContainer, backgroundStyle]}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <View style={styles.headerContainer}>
-        <Header title="Shopping List App" mainStyles={styles.headerComponent}></Header>
-      </View>
+    <PaperProvider>
+      <SafeAreaView style={[styles.mainContainer]}>
+        <StatusBar/>
 
-      <View style={styles.addItemContainer}>
-        <AddItem
-          shoppingList={shoppingList}
-          setShoppingList={setShoppinglist}
-          mainStyles={styles.addItemComponent}>
+        <View style={styles.headerContainer}>
+          <Header title="Shopping List App" clearShoppingList={clearShoppingList} openDialog={openDialog}></Header>
+        </View>
 
-        </AddItem>
-      </View>
+        <View style={styles.addItemContainer}>
+          <AddItem
+            shoppingList={shoppingList}
+            setShoppingList={setShoppinglist}>
+          </AddItem>
+        </View>
 
-      <View style={styles.listItemsContainer}>
-        <Text>List Items</Text>
-      </View>
+        <View style={styles.listItemsContainer}>
+          <ShoppingList
+            shoppingList={shoppingList}
+            deleteShoppingListItem={deleteShoppingListItem}>
 
-      <View style={styles.footerContainer}>
-        <Footer title='Lab/TVT 2024' mainStyles={styles.footerComponent}></Footer>
-      </View>
-      
-    </SafeAreaView>
+          </ShoppingList>
+        </View>
+
+        <View style={styles.footerContainer}>
+          <Footer title='&copy; Lab/TVT 2024'></Footer>
+        </View>
+        
+      </SafeAreaView>
+      <Portal>
+      <Dialog visible={infoVisible} onDismiss={hideDialog} style={styles.dialogStyle}>
+        <Dialog.Content>
+          <Text>This is simple shopping list app created with React Native Paper</Text>
+          <Button onPress={hideDialog}>Close</Button>
+        </Dialog.Content>
+      </Dialog>
+    </Portal>
+  </PaperProvider>
   );
 }
 
+// defining styles
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    flexDirection: 'column'
+    flexDirection: 'column',
+    backgroundColor: '#E8E9EB'
   },
   headerContainer: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: 'red',
+    flex: 2,
+    zIndex: 1000
   },
   addItemContainer: {
     flex: 5,
-    borderWidth: 1,
-    borderColor: 'red',
   },
   listItemsContainer: {
     flex: 7,
-    borderWidth: 1,
-    borderColor: 'red',
   },
   footerContainer: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: 'red',
+    justifyContent: 'center'
   },
   headerComponent: {
-    backgroundColor: 'lightcoral'
+    backgroundColor: '#F09D51',
   },
   footerComponent: {
-    backgroundColor: 'lightcoral'
+    backgroundColor: '#F09D51', 
   },
-  addItemComponent: {
-    //backgroundColor: 'lightcoral'
+  dialogStyle: {
+    alignContent: 'center',
+    backgroundColor: '#F09D51',
+    zIndex: 1000,
   },
 });
 

@@ -1,26 +1,17 @@
 // Footer.tsx
 
 import React from 'react';
-import {
-  StyleProp,
-  StyleSheet,
-  ViewStyle,
-} from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Appbar } from 'react-native-paper';
 
 interface Props {
     title: string;
-    mainStyles: StyleProp<ViewStyle>;
 }
 
-const Footer: React.FC<Props> = ({title, mainStyles}) => {
+const Footer: React.FC<Props> = ({title}) => {
     return(
-        <Appbar.Header style={[mainStyles, styles.footer]} mode='center-aligned'>
-        {/*<Appbar.BackAction onPress={() => ('AppBar back pressed')} />*/}
-        <Appbar.Action icon="copyright" onPress={() => ('AppBar info pressed')} />
+      <Appbar.Header style={[styles.footer]} mode='center-aligned'>
         <Appbar.Content title={title} titleStyle={styles.footerTitle} />
-        {/*<Appbar.Action icon="information" onPress={() => ('AppBar info pressed')} />
-        <Appbar.Action icon="dots-vertical" onPress={() => ('AppBar menu pressed')} />*/}
       </Appbar.Header>
     );
     
@@ -28,12 +19,13 @@ const Footer: React.FC<Props> = ({title, mainStyles}) => {
 
 const styles = StyleSheet.create({
     footer: {
-        alignItems: 'center'
+      backgroundColor: '#F09D51',
+      alignItems: 'center',
       },
       footerTitle: {
         fontWeight: '600',
         fontSize: 15,
-        color: 'blue'
+        color: '#313638'
       }
 })
 

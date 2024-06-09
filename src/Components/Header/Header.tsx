@@ -1,25 +1,47 @@
 // Header.tsx
 
-import React from 'react';
-import {
-  StyleProp,
-  StyleSheet,
-  ViewStyle,
-} from 'react-native';
-import { Appbar } from 'react-native-paper';
+import React, { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Appbar, Button, Dialog, Menu, PaperProvider, Portal, Text } from 'react-native-paper';
 
 interface Props {
     title: string;
-    mainStyles: StyleProp<ViewStyle>;
+    clearShoppingList: () => void;
+    openDialog: () => void;
 }
 
-const Header: React.FC<Props> = ({title, mainStyles}) => {
+const Header: React.FC<Props> = ({title, clearShoppingList, openDialog}) => {
+  const [menuVisible, setMenuVisible] = useState(false);
+  
+  const openMenu = () => setMenuVisible(true);
+  const closeMenu = () => setMenuVisible(false);
+
+  const handleClearList = () => {
+    clearShoppingList();
+    closeMenu();
+  }
+
+  const handleInfo = () => {
+    openDialog();
+    closeMenu();
+  }
+
     return(
-        <Appbar.Header style={[mainStyles, styles.header]} mode='center-aligned'>
-        {/*<Appbar.BackAction onPress={() => ('AppBar back pressed')} />*/}
+      <Appbar.Header style={[styles.header]} mode="center-aligned">
         <Appbar.Content title={title} titleStyle={styles.headerTitle} />
-        <Appbar.Action icon="information" onPress={() => ('AppBar info pressed')} />
-        <Appbar.Action icon="dots-vertical" onPress={() => ('AppBar menu pressed')} />
+        <View style={styles.menuContainer}>
+          <Menu
+            visible={menuVisible}
+            onDismiss={closeMenu}
+            anchor={
+                <Appbar.Action icon="dots-vertical" onPress={openMenu} />
+            }
+            style={styles.menu}
+          >
+            <Menu.Item onPress={handleInfo} title="Info" />
+            <Menu.Item onPress={handleClearList} title="Clear list" />
+          </Menu>
+        </View>
       </Appbar.Header>
     );
     
@@ -27,12 +49,20 @@ const Header: React.FC<Props> = ({title, mainStyles}) => {
 
 const styles = StyleSheet.create({
     header: {
-        alignItems: 'center'
+      backgroundColor: '#F09D51',
+      alignItems: 'center'
       },
       headerTitle: {
         fontWeight: '600',
-        color: 'blue'
-      }
+        color: '#313638'
+      },
+      menuContainer: {
+        zIndex: 1000, // Ensure the menu is on top of other elements
+      },
+      menu: {
+        zIndex: 1000, // Ensure the menu is on top of other elements
+      },
+
 })
 
 export default Header
